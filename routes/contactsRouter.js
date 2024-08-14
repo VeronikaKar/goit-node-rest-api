@@ -15,9 +15,13 @@ import validateBody from "../helpers/validateBody.js";
 const router = express.Router();
 
 router.post("/", validateBody(contactSchema), createContact);
+
 router.put("/:id", validateBody(updateContactSchema), updateContactHandler);
+
 router.get("/", getAllContacts);
+
 router.get("/:id", getOneContact);
+
 router.delete("/:id", deleteContact);
 
 export default router;
