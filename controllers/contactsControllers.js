@@ -3,13 +3,8 @@ import {
   getContactById,
   removeContact,
   addContact,
-  updateContact as updateContactService, 
+  updateContact as updateContactService,
 } from "../services/contactsServices.js";
-import {
-  contactSchema,
-  updateContactSchema,
-} from "../schemas/contactsSchemas.js";
-import validateBody from "../helpers/validateBody.js";
 import HttpError from "../helpers/HttpError.js";
 
 
@@ -18,78 +13,69 @@ export const getAllContacts = async (req, res, next) => {
     const contacts = await listContacts();
     res.status(200).json(contacts);
   } catch (error) {
-    next(HttpError(500, "Internal Server Error"));
+    next(error);
   }
 };
 
 
 export const getOneContact = async (req, res, next) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     const contact = await getContactById(id);
-    if (contact) {
-      res.status(200).json(contact);
-    } else {
-      next(HttpError(404, "Not Found"));
+    if (!contact) {
+      throw new HttpError(404, "Not Found");
     }
+    res.status(200).json(contact);
   } catch (error) {
-    next(HttpError(500, "Internal Server Error"));
+    next(error); 
   }
 };
 
 
 export const deleteContact = async (req, res, next) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     const removedContact = await removeContact(id);
-    if (removedContact) {
-      res.status(200).json(removedContact);
-    } else {
-      next(HttpError(404, "Not Found"));
+    if (!removedContact) {
+      throw new HttpError(404, "Not Found");
     }
+    res.status(200).json(removedContact);
   } catch (error) {
-    next(HttpError(500, "Internal Server Error"));
+    next(error);
   }
 };
-
-
-export const validateCreateContact = validateBody(contactSchema);
 
 
 export const createContact = async (req, res, next) => {
-  const { name, email, phone } = req.body;
   try {
+    const { name, email, phone } = req.body;
     const newContact = await addContact(name, email, phone);
     res.status(201).json(newContact);
   } catch (error) {
-    next(HttpError(500, "Internal Server Error"));
+    next(error);
   }
 };
 
 
-export const validateUpdateContact = validateBody(updateContactSchema);
-
-
 export const updateContactHandler = async (req, res, next) => {
-  const { id } = req.params;
-  const { name, email, phone } = req.body;
-
-  if (!name && !email && !phone) {
-    return next(HttpError(400, "Body must have at least one field"));
-  }
-
   try {
+    const { id } = req.params;
+    const { name, email, phone } = req.body;
+
+    if (!name && !email && !phone) {
+      throw new HttpError(400, "Body must have at least one field");
+    }
+
     const updatedContact = await updateContactService(id, {
       name,
       email,
       phone,
     });
-    if (updatedContact) {
-      res.status(200).json(updatedContact);
-    } else {
-      next(HttpError(404, "Not Found"));
+    if (!updatedContact) {
+      throw new HttpError(404, "Not Found");
     }
+    res.status(200).json(updatedContact);
   } catch (error) {
-    next(HttpError(500, "Internal Server Error"));
+    next(error);
   }
 };
