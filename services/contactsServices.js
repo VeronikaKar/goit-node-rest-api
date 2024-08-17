@@ -1,57 +1,32 @@
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
-import { v4 as uuidv4 } from "uuid";
-import Contact from "../models/contacts";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import Contact from "../models/contacts.js"; // Ensure the correct model path
 
-const contactsPath = path.join(__dirname, "db", "contacts.json");
+// Get all contacts
+export const getContacts = () => {
+  return Contact.find({}, "-createdAt -updatedAt"); // Optionally exclude createdAt and updatedAt fields
+};
 
-async function listContacts() {
-  return await Contact.find();
-}
+// Get a contact by ID
+export const getContactById = (contactId) => {
+  return Contact.findById(contactId);
+};
 
-async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const contact = contacts.find((contact) => contact.id === contactId);
-  return contact || null;
-}
+// Add a new contact
+export const addContact = (data) => {
+  const { name, email, phone, favorite = false } = data; // Default favorite to false if not provided
+  return Contact.create({ name, email, phone, favorite });
+};
 
-async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((contact) => contact.id === contactId);
-  if (index === -1) {
-    return null;
-  }
-  const [removedContact] = contacts.splice(index, 1);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return removedContact;
-}
+// Update a contact by ID
+export const updateContactById = (contactId, updates) => {
+  return Contact.findByIdAndUpdate(contactId, updates, { new: true }); // Return the updated document
+};
 
-async function addContact(name, email, phone) {
-  const contacts = await listContacts();
-  const newContact = { id: uuidv4(), name, email, phone };
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return newContact;
-}
+// Delete a contact by ID
+export const deleteContactById = (contactId) => {
+  return Contact.findByIdAndDelete(contactId);
+};
 
-async function updateContact(contactId, updates) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((contact) => contact.id === contactId);
-  if (index === -1) {
-    return null;
-  }
-  contacts[index] = { ...contacts[index], ...updates };
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return contacts[index];
-}
-
-export {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
+// Update the favorite status of a contact
+export const updateFavoriteStatus = (contactId, { favorite }) => {
+  return Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
 };
