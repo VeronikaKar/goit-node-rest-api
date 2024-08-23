@@ -1,22 +1,29 @@
 import { Schema, model } from "mongoose";
 
-const ContactSchema = new Schema({
+const contactSchema = new Schema({
   name: {
     type: String,
-    required: [true, "Set name for contact"],
+    required: [true, "Name is required"],
   },
   email: {
     type: String,
+    required: [true, "Email is required"],
   },
   phone: {
     type: String,
+    required: [true, "Phone number is required"],
   },
   favorite: {
     type: Boolean,
     default: false,
   },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
 });
 
-const Contact = model("Contact", ContactSchema);
+const Contact = model("contact", contactSchema);
 
 export default Contact;

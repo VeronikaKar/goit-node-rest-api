@@ -1,34 +1,29 @@
-import Joi from "joi";
+const { Schema, model } = require("mongoose");
 
-export const contactAddSchema = Joi.object({
-  name: Joi.string().required().messages({
-    "any.required": "Name is required",
-  }),
-  email: Joi.string().email().required().messages({
-    "any.required": "Email is required",
-    "string.email": "Email must be a valid email address",
-  }),
-  phone: Joi.string().required().messages({
-    "any.required": "Phone number is required",
-  }),
-  favorite: Joi.boolean(),
+const contactSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, "Name is required"],
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+  },
+  phone: {
+    type: String,
+    required: [true, "Phone number is required"],
+  },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "user",
+    required: true, 
+  },
 });
 
-export const contactUpdateSchema = Joi.object({
-  name: Joi.string(),
-  email: Joi.string().email().messages({
-    "string.email": "Email must be a valid email address",
-  }),
-  phone: Joi.string(),
-  favorite: Joi.boolean(),
-})
-  .or("name", "email", "phone", "favorite")
-  .messages({
-    "object.missing": "At least one field must be updated",
-  });
+const Contact = model("contact", contactSchema);
 
-export const contactUpdateFavoriteSchema = Joi.object({
-  favorite: Joi.boolean().required().messages({
-    "any.required": "Favorite status is required",
-  }),
-});
+module.exports = Contact;
