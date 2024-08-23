@@ -1,40 +1,44 @@
 import * as authServices from "../services/authServices.js";
-
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 const signup = async (req, res) => {
   const newUser = await authServices.signup(req.body);
 
   res.status(201).json({
-    username: newUser.username,
-    email: newUser.email,
+    user: {
+      email: newUser.email,
+      subscription: newUser.subscription,
+    },
   });
 };
 
 const signin = async (req, res) => {
-  const { token } = await authServices.signin(req.body);
+  const { token, user } = await authServices.signin(req.body);
 
   res.json({
     token,
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+    },
   });
 };
 
 const getCurrent = (req, res) => {
-  const { username, email } = req.user;
+  const { email, subscription } = req.user;
 
   res.json({
-    username,
     email,
+    subscription,
   });
 };
 
 const signout = async (req, res) => {
   const { _id } = req.user;
-  await authServices.updateUser({ _id }, { token: "" });
 
-  res.json({
-    message: "Logout success",
-  });
+  await authServices.updateUser({ _id }, { token: null });
+
+  res.status(204).send();
 };
 
 export default {

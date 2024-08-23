@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import User from "../models/User.js";
+import User from "../models/users.js";
 
 import HttpError from "../helpers/HttpError.js";
 
