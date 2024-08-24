@@ -65,10 +65,25 @@ const deleteById = async (req, res) => {
   });
 };
 
+const updateFavoriteStatus = async (req, res) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
+
+  const result = await contactsServices.updateFavoriteStatus(contactId, {
+    favorite,
+  });
+  if (!result) {
+    throw HttpError(404, `Contact with id=${contactId} not found`);
+  }
+
+  res.json(result);
+};
+
 export default {
   getAll: ctrlWrapper(getAll),
   getById: ctrlWrapper(getById),
   add: ctrlWrapper(add),
   updateById: ctrlWrapper(updateById),
   deleteById: ctrlWrapper(deleteById),
+  updateFavoriteStatus: ctrlWrapper(updateFavoriteStatus),
 };
