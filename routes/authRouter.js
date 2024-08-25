@@ -23,7 +23,7 @@ authRouter.patch(
   "/",
   authenticate,
   validateBody(subscriptionSchema),
-  authControllers.updateSubscription // Added the update subscription route
+  authControllers.updateSubscription
 );
 
 export default authRouter;

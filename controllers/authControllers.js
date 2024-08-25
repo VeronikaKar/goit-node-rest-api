@@ -53,5 +53,5 @@ export default {
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
-  updateSubscription: ctrlWrapper(updateSubscription), // Added the new controller
+  updateSubscription: ctrlWrapper(updateSubscription), 
 };
