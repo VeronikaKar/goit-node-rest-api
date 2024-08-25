@@ -36,9 +36,22 @@ const signout = async (req, res) => {
   res.status(204).send();
 };
 
+const updateSubscription = async (req, res) => {
+  const { _id } = req.user;
+  const { subscription } = req.body;
+
+  const updatedUser = await authServices.updateUser({ _id }, { subscription });
+
+  res.json({
+    email: updatedUser.email,
+    subscription: updatedUser.subscription,
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
+  updateSubscription: ctrlWrapper(updateSubscription), // Added the new controller
 };

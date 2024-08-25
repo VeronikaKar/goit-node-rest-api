@@ -16,14 +16,14 @@ const signinMiddleware = validateBody(userSigninSchema);
 const authRouter = Router();
 
 authRouter.post("/register", signupMiddleware, authControllers.signup);
-authRouter.post("/login", signinMiddleware, authControllers.signin); 
-authRouter.post("/logout", authenticate, authControllers.signout); 
+authRouter.post("/login", signinMiddleware, authControllers.signin);
+authRouter.post("/logout", authenticate, authControllers.signout);
 authRouter.get("/current", authenticate, authControllers.getCurrent);
 authRouter.patch(
   "/",
   authenticate,
   validateBody(subscriptionSchema),
-  authControllers.updateSubscription 
+  authControllers.updateSubscription // Added the update subscription route
 );
 
 export default authRouter;
