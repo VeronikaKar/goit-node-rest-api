@@ -1,30 +1,36 @@
-import express from "express";
-import contactsControllers from "../controllers/contactsControllers.js";
-import validateBody from "../decorators/validateBody.js";
-import isValidId from "../middlewares/isValidId.js";
-import {
-  contactAddSchema,
-  contactUpdateSchema,
-  contactUpdateFavoriteSchema,
-} from "../schemas/contactsSchemas.js";
+import HttpError from "../helpers/HttpError.js";
 
-const router = express.Router();
+import { verifyToken } from "../helpers/jwt.js";
 
-router.get("/", contactsControllers.getAll);
-router.post("/", validateBody(contactAddSchema), contactsControllers.add);
-router.get("/:id", isValidId, contactsControllers.getById);
-router.put(
-  "/:id",
-  isValidId,
-  validateBody(contactUpdateSchema),
-  contactsControllers.updateById
-);
-router.delete("/:id", isValidId, contactsControllers.deleteById);
-router.patch(
-  "/:contactId/favorite",
-  isValidId,
-  validateBody(contactUpdateFavoriteSchema),
-  contactsControllers.updateFavoriteStatus
-);
+import { findUser } from "../services/authServices.js";
 
-export default router;
+const authenticate = async (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization) {
+    return next(HttpError(401, "Authorization header not found"));
+  }
+
+  const [bearer, token] = authorization.split(" ");
+  if (bearer !== "Bearer") {
+    return next(HttpError(401, "Bearer not found"));
+  }
+
+  const { data, error } = verifyToken(token);
+  if (error) {
+    return next(HttpError(401, error.message));
+  }
+  const { id } = data;
+  const user = await findUser({ _id: id });
+  if (!user) {
+    return next(HttpError(401, "User not found"));
+  }
+
+  if (!user.token) {
+    return next(HttpError(401, "User alredy logout"));
+  }
+
+  req.user = user;
+  next();
+};
+
+export default authenticate;
