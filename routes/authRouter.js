@@ -1,39 +1,29 @@
 import express from "express";
-import contactsControllers from "../controllers/contactsControllers.js";
+import authControllers from "../controllers/authControllers.js";
 import validateBody from "../decorators/validateBody.js";
-import isValidId from "../middlewares/isValidId.js";
+import {
+  userSignupSchema,
+  userSigninSchema,
+  subscriptionSchema,
+} from "../schemas/userSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 
-import {
-  contactAddSchema,
-  contactUpdateSchema,
-  contactUpdateFavoriteSchema,
-} from "../schemas/contactsSchemas.js";
+const { Router } = express;
 
-const router = express.Router();
+const signupMiddleware = validateBody(userSignupSchema);
+const signinMiddleware = validateBody(userSigninSchema);
 
-router.get("/", authenticate, contactsControllers.getAll);
-router.post(
+const authRouter = Router();
+
+authRouter.post("/register", signupMiddleware, authControllers.signup);
+authRouter.post("/login", signinMiddleware, authControllers.signin);
+authRouter.post("/logout", authenticate, authControllers.signout);
+authRouter.get("/current", authenticate, authControllers.getCurrent);
+authRouter.patch(
   "/",
   authenticate,
-  validateBody(contactAddSchema),
-  contactsControllers.add
-);
-router.get("/:id", authenticate, isValidId, contactsControllers.getById);
-router.put(
-  "/:id",
-  authenticate,
-  isValidId,
-  validateBody(contactUpdateSchema),
-  contactsControllers.updateById
-);
-router.delete("/:id", authenticate, isValidId, contactsControllers.deleteById);
-router.patch(
-  "/:contactId/favorite",
-  authenticate,
-  isValidId,
-  validateBody(contactUpdateFavoriteSchema),
-  contactsControllers.updateFavoriteStatus
+  validateBody(subscriptionSchema),
+  authControllers.updateSubscription
 );
 
-export default router;
+export default authRouter;
