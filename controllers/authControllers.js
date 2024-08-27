@@ -1,12 +1,24 @@
+import gravatar from "gravatar";
 import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 const signup = async (req, res) => {
-  const newUser = await authServices.signup(req.body);
+  const { email, password, username } = req.body;
+
+  const avatarURL = gravatar.url(email, { s: "250", d: "identicon" }, true);
+
+  const newUser = await authServices.signup({
+    email,
+    password,
+    username,
+    avatarURL,
+  });
+
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -53,5 +65,5 @@ export default {
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
-  updateSubscription: ctrlWrapper(updateSubscription), 
+  updateSubscription: ctrlWrapper(updateSubscription),
 };

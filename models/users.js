@@ -1,11 +1,12 @@
 import { Schema, model } from "mongoose";
 import { emailRegexp } from "../constants/user-constants.js";
 import { handleSaveError, setUpdateOptions } from "./hooks.js";
+
 const userSchema = new Schema(
   {
-    password: {
+    username: {
       type: String,
-      required: [true, "Password is required"],
+      required: [true, "Username is required"],
     },
     email: {
       type: String,
@@ -13,10 +14,18 @@ const userSchema = new Schema(
       unique: true,
       match: emailRegexp,
     },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+    },
     subscription: {
       type: String,
       enum: ["starter", "pro", "business"],
       default: "starter",
+    },
+    avatarURL: {
+      type: String,
+      default: null,
     },
     token: {
       type: String,
@@ -27,9 +36,10 @@ const userSchema = new Schema(
 );
 
 userSchema.post("save", handleSaveError);
+
 userSchema.pre("findOneAndUpdate", setUpdateOptions);
 userSchema.post("findOneAndUpdate", handleSaveError);
 
-const User = model("user", userSchema);
+const User = model("User", userSchema);
 
 export default User;
