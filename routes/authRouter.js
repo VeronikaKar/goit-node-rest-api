@@ -10,19 +10,24 @@ import authenticate from "../middlewares/authenticate.js";
 
 const { Router } = express;
 
-const signupMiddleware = validateBody(userSignupSchema);
-const signinMiddleware = validateBody(userSigninSchema);
-
 const authRouter = Router();
 
+const signupMiddleware = validateBody(userSignupSchema);
+const signinMiddleware = validateBody(userSigninSchema);
+const subscriptionMiddleware = validateBody(subscriptionSchema);
+
 authRouter.post("/register", signupMiddleware, authControllers.signup);
+
 authRouter.post("/login", signinMiddleware, authControllers.signin);
+
 authRouter.post("/logout", authenticate, authControllers.signout);
+
 authRouter.get("/current", authenticate, authControllers.getCurrent);
+
 authRouter.patch(
-  "/",
+  "/subscription",
   authenticate,
-  validateBody(subscriptionSchema),
+  subscriptionMiddleware,
   authControllers.updateSubscription
 );
 

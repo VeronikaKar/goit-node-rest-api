@@ -7,21 +7,43 @@ import {
   contactUpdateSchema,
   contactUpdateFavoriteSchema,
 } from "../schemas/contactsSchemas.js";
+import authenticate from "../middlewares/authenticate.js";
+import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
-router.get("/", contactsControllers.getAll);
-router.post("/", validateBody(contactAddSchema), contactsControllers.add);
-router.get("/:id", isValidId, contactsControllers.getById);
+
+router.get("/", authenticate, contactsControllers.getAll);
+
+
+router.post(
+  "/",
+  authenticate,
+  upload.single("avatar"),
+  validateBody(contactAddSchema),
+  contactsControllers.add
+);
+
+
+router.get("/:id", authenticate, isValidId, contactsControllers.getById);
+
+
 router.put(
   "/:id",
+  authenticate,
   isValidId,
+  upload.single("avatar"),
   validateBody(contactUpdateSchema),
   contactsControllers.updateById
 );
-router.delete("/:id", isValidId, contactsControllers.deleteById);
+
+
+router.delete("/:id", authenticate, isValidId, contactsControllers.deleteById);
+
+
 router.patch(
   "/:contactId/favorite",
+  authenticate,
   isValidId,
   validateBody(contactUpdateFavoriteSchema),
   contactsControllers.updateFavoriteStatus

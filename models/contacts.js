@@ -1,3 +1,4 @@
+import { string } from "joi";
 import { Schema, model } from "mongoose";
 
 const contactSchema = new Schema({
@@ -16,6 +17,9 @@ const contactSchema = new Schema({
   favorite: {
     type: Boolean,
     default: false,
+  },
+  avatarURL: {
+    type: String,
   },
   owner: {
     type: Schema.Types.ObjectId,
