@@ -12,9 +12,7 @@ import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
-
 router.get("/", authenticate, contactsControllers.getAll);
-
 
 router.post(
   "/",
@@ -24,9 +22,7 @@ router.post(
   contactsControllers.add
 );
 
-
 router.get("/:id", authenticate, isValidId, contactsControllers.getById);
-
 
 router.put(
   "/:id",
@@ -37,9 +33,7 @@ router.put(
   contactsControllers.updateById
 );
 
-
 router.delete("/:id", authenticate, isValidId, contactsControllers.deleteById);
-
 
 router.patch(
   "/:contactId/favorite",
@@ -47,6 +41,14 @@ router.patch(
   isValidId,
   validateBody(contactUpdateFavoriteSchema),
   contactsControllers.updateFavoriteStatus
+);
+
+router.patch(
+  "/:id/avatar",
+  authenticate,
+  isValidId,
+  upload.single("avatar"),
+  contactsControllers.updateAvatar
 );
 
 export default router;
