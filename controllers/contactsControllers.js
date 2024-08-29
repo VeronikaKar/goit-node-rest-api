@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as contactsServices from "../services/contactsServices.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
+// import cloudinary from "../helpers/cloudinary.js";
 
 const avatarsPath = path.resolve("public", "avatars");
 
@@ -33,16 +34,22 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const { path: oldPath, filename } = req.file || {};
+  const { _id: owner } = req.user;
   let avatar = null;
 
-  if (filename) {
-    const newPath = path.join(avatarsPath, filename);
-    await fs.rename(oldPath, newPath);
+  if (req.file) {
+    const { path: tempPath, filename } = req.file;
+    const finalPath = path.join(avatarsPath, filename);
+    await fs.rename(tempPath, finalPath);
     avatar = path.join("avatars", filename);
-  }
 
-  const { _id: owner } = req.user;
+    // Cloudinary Optional
+    // const uploadResult = await cloudinary.uploader.upload(tempPath, {
+    //   folder: "avatars",
+    // });
+    // await fs.unlink(tempPath);
+    // avatar = uploadResult.secure_url;
+  }
 
   const result = await contactsServices.addContact({
     ...req.body,
@@ -58,10 +65,17 @@ const updateById = async (req, res) => {
   const { _id: owner } = req.user;
 
   if (req.file) {
-    const { path: oldPath, filename } = req.file;
-    const newPath = path.join(avatarsPath, filename);
-    await fs.rename(oldPath, newPath);
+    const { path: tempPath, filename } = req.file;
+    const finalPath = path.join(avatarsPath, filename);
+    await fs.rename(tempPath, finalPath);
     req.body.avatar = path.join("avatars", filename);
+
+    // Cloudinary Optional
+    // const uploadResult = await cloudinary.uploader.upload(tempPath, {
+    //   folder: "avatars",
+    // });
+    // await fs.unlink(tempPath);
+    // req.body.avatar = uploadResult.secure_url;
   }
 
   const result = await contactsServices.updateContactById(
