@@ -6,9 +6,7 @@ import HttpError from "../helpers/HttpError.js";
 import * as authServices from "../services/authServices.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
-const tmpPath = path.resolve("tmp");
 const avatarsPath = path.resolve("public", "avatars");
-
 
 const signup = async (req, res) => {
   const { email, password, username } = req.body;
@@ -31,7 +29,6 @@ const signup = async (req, res) => {
   });
 };
 
-
 const signin = async (req, res) => {
   const { token, user } = await authServices.signin(req.body);
   res.json({
@@ -52,13 +49,11 @@ const getCurrent = (req, res) => {
   });
 };
 
-
 const signout = async (req, res) => {
   const { _id } = req.user;
   await authServices.updateUser({ _id }, { token: null });
   res.status(204).send();
 };
-
 
 const updateSubscription = async (req, res) => {
   const { _id } = req.user;
@@ -72,7 +67,6 @@ const updateSubscription = async (req, res) => {
   });
 };
 
-
 const updateAvatar = async (req, res) => {
   const { file } = req;
   const { _id } = req.user;
@@ -82,18 +76,15 @@ const updateAvatar = async (req, res) => {
   }
 
   try {
- 
     const image = await Jimp.read(file.path);
-    image.resize(250, 250); 
-    await image.writeAsync(file.path);
+    image.resize(250, 250); // Resize the image
+    await image.writeAsync(file.path); // Write processed image to file
 
-   
     const newFilename = `${Date.now()}_${file.originalname}`;
     const newFilePath = path.join(avatarsPath, newFilename);
 
-    await fs.rename(file.path, newFilePath);
+    await fs.rename(file.path, newFilePath); // Move file to avatars folder
 
-    
     const avatarURL = path.join("avatars", newFilename);
     const updatedUser = await authServices.updateUser({ _id }, { avatarURL });
 
