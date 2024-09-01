@@ -43,12 +43,4 @@ router.patch(
   contactsControllers.updateFavoriteStatus
 );
 
-router.patch(
-  "/:id/avatar",
-  authenticate,
-  isValidId,
-  upload.single("avatar"),
-  contactsControllers.updateAvatar
-);
-
 export default router;
