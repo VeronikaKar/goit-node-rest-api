@@ -83,7 +83,7 @@ const updateAvatar = async (req, res) => {
     const newFilename = `${Date.now()}_${file.originalname}`;
     const newFilePath = path.join(avatarsPath, newFilename);
 
-    await fs.rename(file.path, newFilePath); // Move file to avatars folder
+    await fs.rename(file.path, newFilePath);
 
     const avatarURL = path.join("avatars", newFilename);
     const updatedUser = await authServices.updateUser({ _id }, { avatarURL });
@@ -104,3 +104,25 @@ export default {
   updateSubscription: ctrlWrapper(updateSubscription),
   updateAvatar: ctrlWrapper(updateAvatar),
 };
+// const jwt = require('jsonwebtoken');
+// const User = require('../models/User');
+
+// exports.login = async (req, res) => {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+
+//     if (!user || user.password !== password) {
+//         return res.status(401).json({ message: 'Invalid credentials' });
+//     }
+
+//     const token = jwt.sign({ userId: user._id }, 'secretKey');
+
+//     res.status(200).json({
+//         token,
+//         user: {
+//             email: user.email,
+//             subscription: user.subscription
+//         }
+//     });
+// };
