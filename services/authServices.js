@@ -1,49 +1,53 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
-import HttpError from "../helpers/HttpError.js";
-import { createToken } from "../helpers/jwt.js";
+import { v4 as uuidv4 } from "uuid";
 
-export const findUser = (filter) => User.findOne(filter);
+const signup = async ({
+  email,
+  password,
+  username,
+  avatarURL,
+  verificationToken = uuidv4(),
+}) => {
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-export const updateUser = (filter, data) => User.findOneAndUpdate(filter, data);
-
-export const signup = async ({ email, password, username, avatarURL }) => {
-  const existingUser = await findUser({ email });
-  if (existingUser) {
-    throw HttpError(409, "Email is already in use");
-  }
-
-  const hashPassword = await bcrypt.hash(password, 10);
-
-  const newUser = await User.create({
+  const newUser = new User({
     email,
-    password: hashPassword,
+    password: hashedPassword,
     username,
     avatarURL,
-    subscription: "starter",
+    verificationToken,
   });
 
+  await newUser.save();
   return newUser;
 };
 
-export const signin = async ({ email, password }) => {
-  const user = await findUser({ email });
-  if (!user) {
-    throw HttpError(401, "Email not found");
+const signin = async ({ email, password }) => {
+  const user = await User.findOne({ email });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    throw new Error("Invalid credentials");
   }
 
-  const passwordCompare = await bcrypt.compare(password, user.password);
-  if (!passwordCompare) {
-    throw HttpError(401, "Password invalid");
+  if (!user.verify) {
+    throw new Error("Email not verified");
   }
 
-  const payload = {
-    id: user._id,
-  };
-
-  const token = createToken(payload);
-
-  await updateUser({ _id: user._id }, { token });
-
+  const token = user.generateAuthToken();
   return { token, user };
 };
+
+const updateUser = async (filter, update) => {
+  const user = await User.findOneAndUpdate(filter, update, { new: true });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
+
+const findUser = async (filter) => {
+  return await User.findOne(filter);
+};
+
+export { signup, signin, updateUser, findUser };

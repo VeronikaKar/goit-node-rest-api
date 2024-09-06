@@ -6,6 +6,7 @@ import {
   userSignupSchema,
   userSigninSchema,
   subscriptionSchema,
+  resendVerificationEmailSchema,
 } from "../schemas/userSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 
@@ -17,8 +18,11 @@ const upload = multer({ dest: "tmp/" });
 const signupMiddleware = validateBody(userSignupSchema);
 const signinMiddleware = validateBody(userSigninSchema);
 const subscriptionMiddleware = validateBody(subscriptionSchema);
+const resendVerificationEmailMiddleware = validateBody(
+  resendVerificationEmailSchema
+);
 
-authRouter.post("/register", signupMiddleware, authControllers.signup);
+authRouter.post("/register", signupMiddleware, authControllers.registerUser);
 
 authRouter.post("/login", signinMiddleware, authControllers.signin);
 
@@ -39,5 +43,13 @@ authRouter.patch(
   upload.single("avatar"),
   authControllers.updateAvatar
 );
+
+authRouter.post(
+  "/resend-verification",
+  resendVerificationEmailMiddleware,
+  authControllers.resendVerificationEmail
+);
+
+authRouter.get("/verify/:verificationToken", authControllers.verifyEmail);
 
 export default authRouter;
