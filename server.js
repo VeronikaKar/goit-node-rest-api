@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
+import { WebSocketServer } from "ws";
 import contactsRouter from "./routes/contactsRouter.js";
 import dotenv from "dotenv";
 import authRouter from "./routes/authRouter.js";
@@ -40,6 +41,30 @@ const startServer = () => {
       console.log("Database connection successful");
       const server = app.listen(PORT, () => {
         console.log(`Server is running on port: ${PORT}`);
+      });
+
+      const wsServer = new WebSocketServer({ server });
+      const socketList = [];
+
+      wsServer.on("connection", (socket) => {
+        console.log("New WebSocket connection");
+
+        socketList.push(socket);
+        socket.send("Welcome to the WebSocket server");
+
+        socketList.forEach((client) => {
+          if (client !== socket && client.readyState === 1) {
+            client.send(`Now we have ${socketList.length} members`);
+          }
+        });
+
+        socket.on("close", () => {
+          console.log("WebSocket disconnected");
+          const index = socketList.indexOf(socket);
+          if (index !== -1) {
+            socketList.splice(index, 1);
+          }
+        });
       });
 
       const gracefulShutdown = () => {
