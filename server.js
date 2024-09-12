@@ -6,6 +6,8 @@ import { WebSocketServer } from "ws";
 import contactsRouter from "./routes/contactsRouter.js";
 import dotenv from "dotenv";
 import authRouter from "./routes/authRouter.js";
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 dotenv.config();
 
@@ -25,7 +27,7 @@ const startServer = () => {
   app.use("/api/auth", authRouter);
   app.use("/api/contacts", contactsRouter);
   app.use(express.static("public"));
-
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   app.use((_, res) => {
     res.status(404).json({ message: "Route not found" });
   });
